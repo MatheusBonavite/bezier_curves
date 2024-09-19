@@ -54,12 +54,12 @@ int main(int argc, char* argv[])
 			}
 		}
 		// Making sure our window will clean itself up!
-		exitOnUnexpected(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 0, 0, 0, 255)));
-		exitOnUnexpected(checkSdlCode(SDL_RenderClear(static_cast<SDL_Renderer*>(renderer))));
+		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 0, 0, 0, 255)));
+		exitOnUnexpected<int>(checkSdlCode(SDL_RenderClear(static_cast<SDL_Renderer*>(renderer))));
 		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer));
 		// Drawing a random line... To see if it is possible
-		exitOnUnexpected(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 255, 0, 0, 255)));
-		exitOnUnexpected(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), 0, 0, 1, 100)));
+		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 255, 0, 0, 255)));
+		exitOnUnexpected<int>(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), 0, 0, 1, 100)));
 		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer));
 	}
 
