@@ -1,33 +1,44 @@
 #include <iostream>
 #include <string>
-#include <optional>
+#include <expected>
 #include <SDL.h>
 
 struct BasicConfig { int x{0}; int y{0}; int width{800}; int height{800}; };
 static BasicConfig basicConfig;
 static int quitApplication = 0;
 
-static inline float lerp(float a, float b, float p) { return ((a*p) + b*(1.0 - p)); };
+// Seems like there is another function in math.h being linked in newer GCC compiler
+// static inline float lerp(float a, float b, float p) { return ((a*p) + b*(1.0 - p)); };
 
-std::optional<int> checkSdlInit(int code)
+std::expected<int, const char*> checkSdlCode(int code)
 {
-	if (code < 0) return std::nullopt;
+	if (code < 0) return std::unexpected(SDL_GetError());
 	return code;
 }
 
-std::optional<void*> checkSdlPointer(void* pointer)
+std::expected<void*, const char*> checkSdlPointer(void* pointer)
 {
-	if (!pointer) return std::nullopt;
+	if (!pointer) return std::unexpected(SDL_GetError());
 	return pointer;
+}
+
+template <typename T>
+T exitOnUnexpected(std::expected<T, const char*> value)
+{
+	if (!value.has_value())
+	{
+		std::cerr << " SDL Error : " << value.error() << std::endl;
+		exit(1);
+	}
+	return value.value();
 }
 
 int main(int argc, char* argv[])
 {
-	if (!checkSdlInit(SDL_Init(SDL_INIT_VIDEO)).has_value()) { std::cerr << "SDL Error : " << SDL_GetError() << std::endl; exit(1); }
-	auto window =  checkSdlPointer(SDL_CreateWindow("Bezier Curves", basicConfig.x, basicConfig.y, basicConfig.width, basicConfig.height, SDL_WINDOW_RESIZABLE));
-	if (!window.has_value()) { std::cerr << "SDL Error : " << SDL_GetError() << std::endl; exit(1); }
-	auto renderer = checkSdlPointer(SDL_CreateRenderer(static_cast<SDL_Window*>(window.value()), -1, SDL_RENDERER_ACCELERATED));
-	if (!renderer.has_value()) { std::cerr << "SDL Error : " << SDL_GetError() << std::endl; exit(1); }
+	// Initializing SDL, creating window and renderer
+	exitOnUnexpected<int>(checkSdlCode(SDL_Init(SDL_INIT_VIDEO)));
+	auto window =  exitOnUnexpected<void*>(checkSdlPointer(SDL_CreateWindow("Bezier Curves", basicConfig.x, basicConfig.y, basicConfig.width, basicConfig.height, SDL_WINDOW_RESIZABLE)));
+	auto renderer = exitOnUnexpected<void*>(checkSdlPointer(SDL_CreateRenderer(static_cast<SDL_Window*>(window), -1, SDL_RENDERER_ACCELERATED)));
 	// Doing main event loop stuff...
 	while (!quitApplication)
 	{
@@ -43,13 +54,13 @@ int main(int argc, char* argv[])
 			}
 		}
 		// Making sure our window will clean itself up!
-		if (!checkSdlInit(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer.value()), 0, 0, 0, 255)).has_value()) { std::cerr << "SDL Errror : " << SDL_GetError()  << std::endl; exit(1); }
-		if (!checkSdlInit(SDL_RenderClear(static_cast<SDL_Renderer*>(renderer.value()))).has_value()) { std::cerr << "SDL Errror : " << SDL_GetError()  << std::endl; exit(1); }
-		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer.value()));
+		exitOnUnexpected(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 0, 0, 0, 255)));
+		exitOnUnexpected(checkSdlCode(SDL_RenderClear(static_cast<SDL_Renderer*>(renderer))));
+		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer));
 		// Drawing a random line... To see if it is possible
-		if (!checkSdlInit(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer.value()), 255, 0, 0, 255)).has_value()) { std::cerr << "SDL Errror : " << SDL_GetError()  << std::endl; exit(1); }
-		if (!checkSdlInit(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer.value()), 0, 0, 1, 100)).has_value()) { std::cerr << "SDL Error : " << SDL_GetError() << std::endl; exit(1); }
-		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer.value()));
+		exitOnUnexpected(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 255, 0, 0, 255)));
+		exitOnUnexpected(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), 0, 0, 1, 100)));
+		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer));
 	}
 
 	SDL_Quit();
