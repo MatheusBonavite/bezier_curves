@@ -1,0 +1,5 @@
+# Compiled object files
+*.o
+
+# Program name
+bezier

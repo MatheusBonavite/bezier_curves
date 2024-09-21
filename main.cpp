@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer));
 		// Drawing a random line... To see if it is possible
 		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 255, 0, 0, 255)));
-		exitOnUnexpected<int>(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), 0, 0, 1, 100)));
+		exitOnUnexpected<int>(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), 0, 0, basicConfig.width, basicConfig.height)));
 		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer));
 	}
 
