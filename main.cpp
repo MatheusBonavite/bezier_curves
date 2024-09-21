@@ -33,6 +33,23 @@ T exitOnUnexpected(std::expected<T, const char*> value)
 	return value.value();
 }
 
+class FrameRefresh
+{
+public:
+	FrameRefresh() { m_frameStart = SDL_GetTicks(); }
+	~FrameRefresh()
+	{
+		uint32_t frameTime = SDL_GetTicks() - m_frameStart;
+		if (m_frameDelay > frameTime)
+		{
+			SDL_Delay(m_frameDelay - frameTime);
+		}
+	}
+private:
+	uint32_t m_frameStart;
+	uint32_t m_frameDelay{100};
+};
+
 int main(int argc, char* argv[])
 {
 	// Initializing SDL, creating window and renderer
@@ -54,14 +71,15 @@ int main(int argc, char* argv[])
 					break;
 			}
 		}
+		// In order to delay a little bit between RenderClear and RenderPresent
+		FrameRefresh rf;
 		// Making sure our window will clean itself up!
 		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 0, 0, 0, 255)));
 		exitOnUnexpected<int>(checkSdlCode(SDL_RenderClear(static_cast<SDL_Renderer*>(renderer))));
-		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer));
 		// Drawing a random line... To see if it is possible
 		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 255, 0, 0, 255)));
 		exitOnUnexpected<int>(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), 0, 0, basicConfig.width, basicConfig.height)));
-		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 0, 255, 0, 255)));
+		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 255, 0, 0, 255)));
 		exitOnUnexpected<int>(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), basicConfig.width, 0, 0, basicConfig.height)));
 		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer));
 	}
