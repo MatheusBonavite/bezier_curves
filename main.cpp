@@ -81,6 +81,10 @@ int main(int argc, char* argv[])
 		exitOnUnexpected<int>(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), 0, 0, basicConfig.width, basicConfig.height)));
 		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 255, 0, 0, 255)));
 		exitOnUnexpected<int>(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), basicConfig.width, 0, 0, basicConfig.height)));
+		// Let us now draw a random Rectangle
+		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 0, 0, 255, 255)));
+		SDL_Rect rect { (basicConfig.width / 2) - 8, (basicConfig.height / 2) - 8, 16, 16 };
+		exitOnUnexpected<int>(checkSdlCode(SDL_RenderFillRect(static_cast<SDL_Renderer*>(renderer), &rect)));
 		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer));
 	}
 
