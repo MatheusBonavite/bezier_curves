@@ -39,6 +39,7 @@ int main(int argc, char* argv[])
 	exitOnUnexpected<int>(checkSdlCode(SDL_Init(SDL_INIT_VIDEO)));
 	auto window =  exitOnUnexpected<void*>(checkSdlPointer(SDL_CreateWindow("Bezier Curves", basicConfig.x, basicConfig.y, basicConfig.width, basicConfig.height, SDL_WINDOW_RESIZABLE)));
 	auto renderer = exitOnUnexpected<void*>(checkSdlPointer(SDL_CreateRenderer(static_cast<SDL_Window*>(window), -1, SDL_RENDERER_ACCELERATED)));
+	exitOnUnexpected<int>(checkSdlCode(SDL_RenderSetLogicalSize(static_cast<SDL_Renderer*>(renderer), basicConfig.width, basicConfig.height)));
 	// Doing main event loop stuff...
 	while (!quitApplication)
 	{
@@ -60,6 +61,8 @@ int main(int argc, char* argv[])
 		// Drawing a random line... To see if it is possible
 		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 255, 0, 0, 255)));
 		exitOnUnexpected<int>(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), 0, 0, basicConfig.width, basicConfig.height)));
+		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 0, 255, 0, 255)));
+		exitOnUnexpected<int>(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), basicConfig.width, 0, 0, basicConfig.height)));
 		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer));
 	}
 
