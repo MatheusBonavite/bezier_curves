@@ -2,6 +2,7 @@
 #include <string>
 #include <expected>
 #include <SDL.h>
+#include "./utils/ErrorChecker.h"
 
 struct BasicConfig { int x{0}; int y{0}; int width{800}; int height{800}; };
 static BasicConfig basicConfig;
@@ -9,29 +10,6 @@ static int quitApplication = 0;
 
 // Seems like there is another function in math.h being linked in newer GCC compiler
 // static inline float lerp(float a, float b, float p) { return ((a*p) + b*(1.0 - p)); };
-
-std::expected<int, const char*> checkSdlCode(int code)
-{
-	if (code < 0) return std::unexpected(SDL_GetError());
-	return code;
-}
-
-std::expected<void*, const char*> checkSdlPointer(void* pointer)
-{
-	if (!pointer) return std::unexpected(SDL_GetError());
-	return pointer;
-}
-
-template <typename T>
-T exitOnUnexpected(std::expected<T, const char*> value)
-{
-	if (!value.has_value())
-	{
-		std::cerr << " SDL Error : " << value.error() << std::endl;
-		exit(1);
-	}
-	return value.value();
-}
 
 class FrameRefresh
 {
@@ -53,10 +31,10 @@ private:
 int main(int argc, char* argv[])
 {
 	// Initializing SDL, creating window and renderer
-	exitOnUnexpected<int>(checkSdlCode(SDL_Init(SDL_INIT_VIDEO)));
-	auto window =  exitOnUnexpected<void*>(checkSdlPointer(SDL_CreateWindow("Bezier Curves", basicConfig.x, basicConfig.y, basicConfig.width, basicConfig.height, SDL_WINDOW_RESIZABLE)));
-	auto renderer = exitOnUnexpected<void*>(checkSdlPointer(SDL_CreateRenderer(static_cast<SDL_Window*>(window), -1, SDL_RENDERER_ACCELERATED)));
-	exitOnUnexpected<int>(checkSdlCode(SDL_RenderSetLogicalSize(static_cast<SDL_Renderer*>(renderer), basicConfig.width, basicConfig.height)));
+	ErrorChecker::exitOnUnexpected(SDL_Init(SDL_INIT_VIDEO));
+	auto window = ErrorChecker::exitOnUnexpected(SDL_CreateWindow("Bezier Curves", basicConfig.x, basicConfig.y, basicConfig.width, basicConfig.height, SDL_WINDOW_RESIZABLE));
+	auto renderer = ErrorChecker::exitOnUnexpected(SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED));
+	ErrorChecker::exitOnUnexpected(SDL_RenderSetLogicalSize(renderer, basicConfig.width, basicConfig.height));
 	// Doing main event loop stuff...
 	while (!quitApplication)
 	{
@@ -74,18 +52,18 @@ int main(int argc, char* argv[])
 		// In order to delay a little bit between RenderClear and RenderPresent
 		FrameRefresh rf;
 		// Making sure our window will clean itself up!
-		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 0, 0, 0, 255)));
-		exitOnUnexpected<int>(checkSdlCode(SDL_RenderClear(static_cast<SDL_Renderer*>(renderer))));
+		ErrorChecker::exitOnUnexpected(SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255));
+		ErrorChecker::exitOnUnexpected(SDL_RenderClear(renderer));
 		// Drawing a random line... To see if it is possible
-		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 255, 0, 0, 255)));
-		exitOnUnexpected<int>(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), 0, 0, basicConfig.width, basicConfig.height)));
-		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 255, 0, 0, 255)));
-		exitOnUnexpected<int>(checkSdlCode(SDL_RenderDrawLine(static_cast<SDL_Renderer*>(renderer), basicConfig.width, 0, 0, basicConfig.height)));
+		ErrorChecker::exitOnUnexpected(SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255));
+		ErrorChecker::exitOnUnexpected(SDL_RenderDrawLine(renderer, 0, 0, basicConfig.width, basicConfig.height));
+		ErrorChecker::exitOnUnexpected(SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255));
+		ErrorChecker::exitOnUnexpected(SDL_RenderDrawLine(renderer, basicConfig.width, 0, 0, basicConfig.height));
 		// Let us now draw a random Rectangle
-		exitOnUnexpected<int>(checkSdlCode(SDL_SetRenderDrawColor(static_cast<SDL_Renderer*>(renderer), 0, 0, 255, 255)));
+		ErrorChecker::exitOnUnexpected(SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255));
 		SDL_Rect rect { (basicConfig.width / 2) - 8, (basicConfig.height / 2) - 8, 16, 16 };
-		exitOnUnexpected<int>(checkSdlCode(SDL_RenderFillRect(static_cast<SDL_Renderer*>(renderer), &rect)));
-		SDL_RenderPresent(static_cast<SDL_Renderer*>(renderer));
+		ErrorChecker::exitOnUnexpected(SDL_RenderFillRect(renderer, &rect));
+		SDL_RenderPresent(renderer);
 	}
 
 	SDL_Quit();
