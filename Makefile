@@ -1,14 +1,12 @@
-.PHONY: bezier clear
+.PHONY: bezier bezier-db clear
 
-bezier: main.o ErrorChecker.o
-	g++-12 main.o ErrorChecker.o -lSDL2 -o bezier
+bezier:
+	$(MAKE) -f Makefile.orig bezier
 
-main.o: main.cpp
-	g++-12 --std=c++23 -c -I/usr/include/SDL2 main.cpp
-
-ErrorChecker.o: ./utils/ErrorChecker.cpp
-	g++-12 --std=c++23 -c -I/usr/include/SDL2 ./utils/ErrorChecker.cpp
+bezier-db:
+	bear -- $(MAKE) -f Makefile.orig bezier
 
 clear:
 	rm -rf *.o
 	rm -rf bezier
+	rm -rf compile_commands.json

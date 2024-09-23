@@ -3,3 +3,9 @@
 
 # Program name
 bezier
+
+# compile_commands.json
+compile_commands.json
+
+#.cache
+.cache
