@@ -10,6 +10,9 @@ static int quitApplication = 0;
 
 // Seems like there is another function in math.h being linked in newer GCC compiler
 // static inline float lerp(float a, float b, float p) { return ((a*p) + b*(1.0 - p)); };
+// However, I still need to do lerp for 2D vectors
+template <typename T>
+static inline Vec2D<T> lerpVec2D(Vec2D<T> a, Vec2D<T> b, float p) { return (a*p) + b*(1.0 - p); }
 
 class FrameRefresh
 {
