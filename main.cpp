@@ -42,7 +42,13 @@ void SDLRenderRect(SDL_Renderer* renderer, Vec2D<int> position, Vec2D<int> size,
 	ErrorChecker::exitOnUnexpected(SDL_SetRenderDrawColor(renderer,rgb.red, rgb.green, rgb.blue, rgb.alpha));
 	SDL_Rect rect { position.x, position.y, size.x, size.y };
 	ErrorChecker::exitOnUnexpected(SDL_RenderFillRect(renderer, &rect));
-	return;
+}
+
+void renderMarker(SDL_Renderer* renderer, Vec2D<int> position, RGBAlpha color)
+{
+	constexpr int MARKER_SIZE = 16;
+	// Let us now draw a random Rectangle
+	SDLRenderRect(renderer, position - (MARKER_SIZE/2), Vec2D<int>(MARKER_SIZE, MARKER_SIZE), color);
 }
 
 int main(int argc, char* argv[])
@@ -74,8 +80,13 @@ int main(int argc, char* argv[])
 		// Drawing a random line... To see if it is possible
 		SDLRenderLine(renderer, Vec2D<int>(0, 0), Vec2D<int>(basicConfig.width, basicConfig.height), RGBAlpha{255, 0, 0, 255});
 		SDLRenderLine(renderer, Vec2D<int>(basicConfig.width, 0), Vec2D<int>(0, basicConfig.height), RGBAlpha{255, 0, 0, 255});
-		// Let us now draw a random Rectangle
-		SDLRenderRect(renderer, Vec2D<int>((basicConfig.width/2) - 8, (basicConfig.height/2) - 8), Vec2D<int>(16, 16), {0, 255, 0, 255});
+		// I will render one marker in the second and fourth quadeant than do a lerp in the middle
+		renderMarker(renderer, {0, 0}, {0, 0, 255, 255});
+		auto lerpResult = lerpVec2D(Vec2D<float>(0.0, 0.0), Vec2D<float>(basicConfig.width, basicConfig.height), 0.5);
+		renderMarker(renderer, Vec2D<int>(lerpResult.x, lerpResult.y), {0, 255, 0, 255});
+		lerpResult = lerpVec2D(Vec2D<float>(0.0, 0.0), Vec2D<float>(basicConfig.width, basicConfig.height), 0.75);
+		renderMarker(renderer, Vec2D<int>(lerpResult.x, lerpResult.y), {0, 255, 0, 255});
+		renderMarker(renderer, {basicConfig.width, basicConfig.height}, {0, 0, 255, 255});
 		SDL_RenderPresent(renderer);
 	}
 
