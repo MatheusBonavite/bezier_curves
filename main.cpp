@@ -34,6 +34,14 @@ void SDLRenderLine(SDL_Renderer* renderer, Vec2D<int> startPoint, Vec2D<int> end
 	ErrorChecker::exitOnUnexpected(SDL_RenderDrawLine(renderer, startPoint.x, startPoint.y, endPoint.x, endPoint.y));
 }
 
+void SDLRenderRect(SDL_Renderer* renderer, Vec2D<int> position, Vec2D<int> size, RGBAlpha rgb)
+{
+	ErrorChecker::exitOnUnexpected(SDL_SetRenderDrawColor(renderer,rgb.red, rgb.green, rgb.blue, rgb.alpha));
+	SDL_Rect rect { position.x, position.y, size.x, size.y };
+	ErrorChecker::exitOnUnexpected(SDL_RenderFillRect(renderer, &rect));
+	return;
+}
+
 int main(int argc, char* argv[])
 {
 	// Initializing SDL, creating window and renderer
@@ -64,9 +72,7 @@ int main(int argc, char* argv[])
 		SDLRenderLine(renderer, Vec2D<int>(0, 0), Vec2D<int>(basicConfig.width, basicConfig.height), RGBAlpha{255, 0, 0, 255});
 		SDLRenderLine(renderer, Vec2D<int>(basicConfig.width, 0), Vec2D<int>(0, basicConfig.height), RGBAlpha{255, 0, 0, 255});
 		// Let us now draw a random Rectangle
-		ErrorChecker::exitOnUnexpected(SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255));
-		SDL_Rect rect { (basicConfig.width / 2) - 8, (basicConfig.height / 2) - 8, 16, 16 };
-		ErrorChecker::exitOnUnexpected(SDL_RenderFillRect(renderer, &rect));
+		SDLRenderRect(renderer, Vec2D<int>((basicConfig.width/2) - 8, (basicConfig.height/2) - 8), Vec2D<int>(16, 16), {0, 255, 0, 255});
 		SDL_RenderPresent(renderer);
 	}
 
