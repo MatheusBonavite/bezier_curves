@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include "./utils/ErrorChecker.h"
 #include "./utils/Vec2D.h"
+#include "./utils/FrameRefresh.h"
 
 struct RGBAlpha { uint8_t red; uint8_t green; uint8_t blue; uint8_t alpha; };
 struct BasicConfig { int x{0}; int y{0}; int width{800}; int height{800}; };
@@ -13,23 +14,6 @@ static int quitApplication = 0;
 // However, I still need to do lerp for 2D vectors
 template <typename T>
 static inline Vec2D<T> lerpVec2D(Vec2D<T> a, Vec2D<T> b, float p) { return (a*p) + b*(1.0 - p); }
-
-class FrameRefresh
-{
-public:
-	FrameRefresh() { m_frameStart = SDL_GetTicks(); }
-	~FrameRefresh()
-	{
-		uint32_t frameTime = SDL_GetTicks() - m_frameStart;
-		if (m_frameDelay > frameTime)
-		{
-			SDL_Delay(m_frameDelay - frameTime);
-		}
-	}
-private:
-	uint32_t m_frameStart;
-	uint32_t m_frameDelay{100};
-};
 
 void SDLRenderLine(SDL_Renderer* renderer, Vec2D<int> startPoint, Vec2D<int> endPoint, RGBAlpha rgb)
 {
@@ -82,6 +66,7 @@ int main(int argc, char* argv[])
 		SDLRenderLine(renderer, Vec2D<int>(basicConfig.width, 0), Vec2D<int>(0, basicConfig.height), RGBAlpha{255, 0, 0, 255});
 		// I will render one marker in the second and fourth quadeant than do a lerp in the middle
 		renderMarker(renderer, {0, 0}, {0, 0, 255, 255});
+		// Doing some lerping operations...
 		auto lerpResult = lerpVec2D(Vec2D<float>(0.0, 0.0), Vec2D<float>(basicConfig.width, basicConfig.height), 0.5);
 		renderMarker(renderer, Vec2D<int>(lerpResult.x, lerpResult.y), {0, 255, 0, 255});
 		lerpResult = lerpVec2D(Vec2D<float>(0.0, 0.0), Vec2D<float>(basicConfig.width, basicConfig.height), 0.75);
