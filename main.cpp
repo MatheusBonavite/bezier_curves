@@ -1,11 +1,20 @@
 #include <expected>
+#include <math.h>
 #include <SDL.h>
 #include "./utils/ErrorChecker.h"
 #include "./utils/Vec2D.h"
 #include "./utils/FrameRefresh.h"
 
 struct RGBAlpha { uint8_t red; uint8_t green; uint8_t blue; uint8_t alpha; };
-struct BasicConfig { int x{0}; int y{0}; int width{800}; int height{800}; };
+struct BasicConfig { 
+	int x{0};
+	int y{0};
+	int width{800};
+	int height{800};
+	int screenFps{60};
+	float delaySeconds{1.0f/screenFps};
+	uint32_t delayMilliseconds{static_cast<uint32_t>(delaySeconds * 1000.0f)};
+};
 static BasicConfig basicConfig;
 static int quitApplication = 0;
 
@@ -57,21 +66,16 @@ int main(int argc, char* argv[])
 			}
 		}
 		// In order to delay a little bit between RenderClear and RenderPresent
-		FrameRefresh rf;
+		FrameRefresh rf(basicConfig.delaySeconds, basicConfig.delayMilliseconds);
 		// Making sure our window will clean itself up!
 		ErrorChecker::exitOnUnexpected(SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255));
 		ErrorChecker::exitOnUnexpected(SDL_RenderClear(renderer));
 		// Drawing a random line... To see if it is possible
 		SDLRenderLine(renderer, Vec2D<int>(0, 0), Vec2D<int>(basicConfig.width, basicConfig.height), RGBAlpha{255, 0, 0, 255});
 		SDLRenderLine(renderer, Vec2D<int>(basicConfig.width, 0), Vec2D<int>(0, basicConfig.height), RGBAlpha{255, 0, 0, 255});
-		// I will render one marker in the second and fourth quadeant than do a lerp in the middle
-		renderMarker(renderer, {0, 0}, {0, 0, 255, 255});
 		// Doing some lerping operations...
-		auto lerpResult = lerpVec2D(Vec2D<float>(0.0, 0.0), Vec2D<float>(basicConfig.width, basicConfig.height), 0.5);
+		auto lerpResult = lerpVec2D(Vec2D<float>(0.0, 0.0), Vec2D<float>(basicConfig.width, basicConfig.height), (sin(rf.getElapsedTime()) + 1.0)/2.0 );
 		renderMarker(renderer, Vec2D<int>(lerpResult.x, lerpResult.y), {0, 255, 0, 255});
-		lerpResult = lerpVec2D(Vec2D<float>(0.0, 0.0), Vec2D<float>(basicConfig.width, basicConfig.height), 0.75);
-		renderMarker(renderer, Vec2D<int>(lerpResult.x, lerpResult.y), {0, 255, 0, 255});
-		renderMarker(renderer, {basicConfig.width, basicConfig.height}, {0, 0, 255, 255});
 		SDL_RenderPresent(renderer);
 	}
 
